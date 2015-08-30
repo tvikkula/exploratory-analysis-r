@@ -3,8 +3,15 @@ title: "exploratory analysis"
 author: "Tommi Vikkula"
 output: html_document
 ---
+
+## Load libraries?
 ```{r echo=FALSE}
+# load the ggplot graphics package and the others
 library(ggplot2)
+library(GGally)
+library(scales)
+library(memisc)
+library(gridExtra)
 ```
 
 ## Load the dataset
@@ -13,6 +20,11 @@ setwd('~/Dev/python/datascience/exploratoryR/project/')
 wines <- read.csv('wineQualityWhites.csv', sep=',')
 summary(wines)
 str(wines)
+
+# Change quality into a factor
+wines$quality <- factor(wines$quality, levels =c("1","2","3","4","5","6","7","8","9","10"))
+levels(wines$quality)
+str(wines)
 ```
 
 ## Quality of wines
@@ -20,5 +32,32 @@ str(wines)
 ggplot(aes(x = quality), data = wines) +
   geom_histogram(binwidth = 1, fill = 'purple', color = 'black') +
   scale_x_continuous(breaks = seq(0,10,1))
+```
+
+## Run ggpairs to view the relationships of features
+```{r}
+# No need to use sampling as the dataset is so small
+ggpairs(wines, params = c(shape = I('.'), outlier.shape = I('.')))
+```
+
+It seems there are no single features with large correlation with wine quality. There are, however, a few features with small correlation. Namely alcohol, density and also chlorides and volatile.acidity show some minor correlation. For alcohol, the correlation is positive, for the other 3 features the correlation is negative.
+
+## Box plots of wine quality and alcohol, density, chlorides and volatile.acidity
+```{r}
+plot1 <- ggplot(aes(x = quality, y = alcohol), data = wines) +
+  geom_boxplot()
+plot2 <- ggplot(aes(x = quality, y = density), data = wines) +
+  geom_boxplot()
+plot3 <- ggplot(aes(x = quality, y = chlorides), data = wines) +
+  geom_boxplot()
+plot4 <- ggplot(aes(x = quality, y = volatile.acidity), data = wines) +
+  geom_boxplot()
+
+grid.arrange(plot1, plot2, plot3, plot4, ncol=1)
+
+by(wines$alcohol, wines$quality, summary)
+by(wines$density, wines$quality, summary)
+by(wines$chlorides, wines$quality, summary)
+by(wines$volatile.acidity, wines$quality, summary)
 ```
 
