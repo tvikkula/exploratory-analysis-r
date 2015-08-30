@@ -3,4 +3,21 @@ title: "exploratory analysis"
 author: "Tommi Vikkula"
 output: html_document
 ---
+```{r echo=FALSE}
+library(ggplot2)
+```
+
+## Load the dataset
+```{r echo=FALSE}
+setwd('~/Dev/python/datascience/exploratoryR/project/')
+wines <- read.csv('wineQualityWhites.csv', sep=',')
+summary(wines)
+str(wines)
+```
+
+## Quality of wines
+```{r}
+ggplot(aes(x = quality), data = wines) +
+  geom_histogram()
+```
 
