@@ -25,14 +25,21 @@ str(wines)
 wines$quality <- factor(wines$quality, levels =c("1","2","3","4","5","6","7","8","9","10"))
 levels(wines$quality)
 str(wines)
+
+# Only 5 wines with 9 quality
+sum(wines$quality == 9)
+
 ```
 
 ## Quality of wines
 ```{r}
 ggplot(aes(x = quality), data = wines) +
-  geom_histogram(binwidth = 1, fill = 'purple', color = 'black') +
-  scale_x_continuous(breaks = seq(0,10,1))
+  geom_histogram(binwidth = 1, fill = 'purple', color = 'black')
 ```
+
+The qualities of wines seem quite normally distributed. It also seems that no wines were given either a 10, or 0-2. Additionally, only 5 wines were of quality 9.
+
+As wines of quality 9 are simply not numerous enough, from now they will be subsetted out to avoid the skewing of visualizations.
 
 ## Run ggpairs to view the relationships of features
 ```{r}
@@ -40,24 +47,155 @@ ggplot(aes(x = quality), data = wines) +
 ggpairs(wines, params = c(shape = I('.'), outlier.shape = I('.')))
 ```
 
+
+## Estimates of median values of features vs quality
+```{r}
+wines$quality <- as.numeric(wines$quality)
+p1 <- qplot(x = quality, y = fixed.acidity,
+            data = subset(wines, wines$quality != 9), alpha = 1/10) +
+  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  scale_x_continuous(breaks = c(0,10,1))
+p2 <- qplot(x = quality, y = volatile.acidity,
+            data = subset(wines, wines$quality != 9), alpha = 1/10) +
+  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  scale_x_continuous(breaks = c(0,10,1))
+p3 <- qplot(x = quality, y = citric.acid, data = subset(wines, wines$quality != 9), alpha = 1/10) +
+  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  scale_x_continuous(breaks = c(0,10,1))
+p4 <- qplot(x = quality, y = residual.sugar, data = subset(wines, wines$quality != 9), alpha = 1/10) +
+  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  scale_x_continuous(breaks = c(0,10,1))
+p5 <- qplot(x = quality, y = chlorides, data = subset(wines, wines$quality != 9), alpha = 1/10) +
+  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  scale_x_continuous(breaks = c(0,10,1))
+p6 <- qplot(x = quality, y = free.sulfur.dioxide, data = subset(wines, wines$quality != 9), alpha = 1/10) +
+  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  scale_x_continuous(breaks = c(0,10,1))
+p7 <- qplot(x = quality, y = total.sulfur.dioxide, data = subset(wines, wines$quality != 9), alpha = 1/10) +
+  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  scale_x_continuous(breaks = c(0,10,1))
+p8 <- qplot(x = quality, y = density, data = subset(wines, wines$quality != 9), alpha = 1/10) +
+  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  scale_x_continuous(breaks = c(0,10,1))
+p9 <- qplot(x = quality, y = pH, data = subset(wines, wines$quality != 9), alpha = 1/10) +
+  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  scale_x_continuous(breaks = c(0,10,1))
+p10 <- qplot(x = quality, y = sulphates, data = subset(wines, wines$quality != 9), alpha = 1/10) +
+  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  scale_x_continuous(breaks = c(0,10,1))
+p11 <- qplot(x = quality, y = alcohol, data = subset(wines, wines$quality != 9), alpha = 1/10) +
+  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
+  scale_x_continuous(breaks = c(0,10,1))
+grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11, ncol = 4)
+```
+
+The mean and median of features doesn't seem to differ that much, therefore the doesn't seem to be that large outliers in the data. Additionally, the correlation of features with wine quality seem very small or nonexistant.
+
 It seems there are no single features with large correlation with wine quality. There are, however, a few features with small correlation. Namely alcohol, density and also chlorides and volatile.acidity show some minor correlation. For alcohol, the correlation is positive, for the other 3 features the correlation is negative.
 
 ## Box plots of wine quality and alcohol, density, chlorides and volatile.acidity
 ```{r}
-plot1 <- ggplot(aes(x = quality, y = alcohol), data = wines) +
-  geom_boxplot()
-plot2 <- ggplot(aes(x = quality, y = density), data = wines) +
-  geom_boxplot()
-plot3 <- ggplot(aes(x = quality, y = chlorides), data = wines) +
-  geom_boxplot()
-plot4 <- ggplot(aes(x = quality, y = volatile.acidity), data = wines) +
-  geom_boxplot()
+# Change quality into a factor
+wines$quality <- factor(wines$quality, levels =c("1","2","3","4","5","6","7","8","9","10"))
 
-grid.arrange(plot1, plot2, plot3, plot4, ncol=1)
+plot1 <- ggplot(aes(x = quality, y = fixed.acidity), data = subset(wines, wines$quality != 9)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(quantile(wines$fixed.acidity, 0.05), 
+                           quantile(wines$fixed.acidity, 0.95)))
+plot2 <- ggplot(aes(x = quality, y = volatile.acidity), data = subset(wines, wines$quality != 9)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(quantile(wines$volatile.acidity, 0.05), 
+                           quantile(wines$volatile.acidity, 0.95)))
+plot3 <- ggplot(aes(x = quality, y = citric.acid), data = subset(wines, wines$quality != 9)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(quantile(wines$citric.acid, 0.05), 
+                           quantile(wines$citric.acid, 0.95)))
+plot4 <- ggplot(aes(x = quality, y = residual.sugar), data = subset(wines, wines$quality != 9)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(quantile(wines$residual.sugar, 0.05), 
+                           quantile(wines$residual.sugar, 0.95)))
 
-by(wines$alcohol, wines$quality, summary)
-by(wines$density, wines$quality, summary)
-by(wines$chlorides, wines$quality, summary)
-by(wines$volatile.acidity, wines$quality, summary)
+plot5 <- ggplot(aes(x = quality, y = chlorides), data = subset(wines, wines$quality != 9)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(quantile(wines$chlorides, 0.05), 
+                           quantile(wines$chlorides, 0.95)))
+
+plot6 <- ggplot(aes(x = quality, y = free.sulfur.dioxide), data = subset(wines, wines$quality != 9)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(quantile(wines$free.sulfur.dioxide, 0.05), 
+                           quantile(wines$free.sulfur.dioxide, 0.95)))
+
+plot7 <- ggplot(aes(x = quality, y = total.sulfur.dioxide), data = subset(wines, wines$quality != 9)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(quantile(wines$total.sulfur.dioxide, 0.05), 
+                           quantile(wines$total.sulfur.dioxide, 0.95)))
+
+plot8 <- ggplot(aes(x = quality, y = density), data = subset(wines, wines$quality != 9)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(quantile(wines$density, 0.05), 
+                           quantile(wines$density, 0.95)))
+
+plot9 <- ggplot(aes(x = quality, y = pH), data = subset(wines, wines$quality != 9)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(quantile(wines$pH, 0.05), 
+                           quantile(wines$pH, 0.95)))
+
+plot10 <- ggplot(aes(x = quality, y = sulphates), data = subset(wines, wines$quality != 9)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(quantile(wines$sulphates, 0.05), 
+                           quantile(wines$sulphates, 0.95)))
+
+plot11 <- ggplot(aes(x = quality, y = alcohol), data = subset(wines, wines$quality != 9)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(quantile(wines$alcohol, 0.05), 
+                           quantile(wines$alcohol, 0.95)))
+
+grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, plot8, plot9, plot10, plot11, ncol=4)
 ```
 
+The boxplots further identify the problem: The features simply do not seem to be enough in explaining the quality of good wines.
+
+The boxplots seem to give further information to the correlation values discovered earlier. All of the relationships displayed in the boxplots seem to indicate slight nonlinear (curvilinear perhaps) relationships. To relationships such as these, the pearson correlations calculated earlier may give some misleading correlation values that underestimate their actual correlation.
+
+## Lets try Spearman correlation instead
+```{r echo=FALSE}
+wines$quality <- as.numeric(wines$quality)
+# Pearsons for comparison
+cor.test(wines$quality, wines$alcohol, method = 'pearson')
+cor.test(wines$quality, wines$density, method = 'pearson')
+cor.test(wines$quality, wines$chlorides, method = 'pearson')
+cor.test(wines$quality, wines$volatile.acidity, method = 'pearson')
+
+# Now the Spearmans
+cor.test(wines$quality, wines$alcohol, method = 'spearman')
+cor.test(wines$quality, wines$density, method = 'spearman')
+cor.test(wines$quality, wines$chlorides, method = 'spearman')
+cor.test(wines$quality, wines$volatile.acidity, method = 'spearman')
+```
+
+The correlations are now slightly higher. As seen in the boxplots, the relationships of quality and especially alcohol and volatile.acidity seem to be slightly non-monotonic, therefore breaking the assumptions made by Spearman correlation on the data.
+
+## Lets try to build a linear model for quality
+```{r}
+
+m1 <- lm(I(quality) ~ I(volatile.acidity), data = wines)
+m2 <- update(m1, ~ . + chlorides)
+m3 <- update(m2, ~ . + density)
+m4 <- update(m3, ~ . + alcohol)
+m5 <- update(m4, ~ . + residual.sugar)
+m6 <- update(m5, ~ . + pH)
+mtable(m1,m2,m3,m4,m5,m6,m7)
+```
+
+The linear model seems to explain the quality of a wine very poorly. They explain only 27.1% of the variance in wine quality.
