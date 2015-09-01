@@ -191,11 +191,21 @@ The correlations are now slightly higher. As seen in the boxplots, the relations
 
 m1 <- lm(I(quality) ~ I(volatile.acidity), data = wines)
 m2 <- update(m1, ~ . + chlorides)
-m3 <- update(m2, ~ . + density)
-m4 <- update(m3, ~ . + alcohol)
+m3 <- update(m1, ~ . + density)
+m4 <- update(m1, ~ . + alcohol)
 m5 <- update(m4, ~ . + residual.sugar)
 m6 <- update(m5, ~ . + pH)
-mtable(m1,m2,m3,m4,m5,m6,m7)
+mtable(m1,m2,m3,m4,m5,m6)
 ```
 
 The linear model seems to explain the quality of a wine very poorly. They explain only 27.1% of the variance in wine quality.
+
+## Lets see what went wrong
+```{r}
+summary(m6)
+anova(m6)
+plot(m6)
+```
+
+The standard error seems high for density is quite a bit higher than the rest. The Pf(>t)-value of chlorides seems very high, which makes me wonder if they are actually statistically significant to the model.
+Testing the regression without chlorides seemed to have no effect on the R-squared-value causing us to believe that the chlorides have no effect on the variance of wine quality.
