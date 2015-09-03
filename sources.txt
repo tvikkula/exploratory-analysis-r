@@ -1,0 +1,2 @@
+Data Analysis with R - course material
+http://www.cookbook-r.com/
