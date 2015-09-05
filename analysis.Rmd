@@ -130,9 +130,28 @@ To cut them out, lets include only values less than 20.
 wines_subset <- subset(wines_subset, residual.sugar < 20)
 ```
 
+The make the feature more normally distributed, let us attempt to transform the data using log10 and sqrt.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+rs1 <- ggplot(aes(x = residual.sugar), data = wines_subset) +
+  geom_histogram(binwidth = 0.2, fill = 'purple', color = 'black') +
+  scale_x_continuous(limits = c(0,25), breaks = seq(0, 25, 1))
+
+rs2 <- ggplot(aes(x = residual.sugar), data = wines_subset) +
+  geom_histogram(fill = 'purple', color = 'black') +
+  scale_x_log10()
+
+rs3 <- ggplot(aes(x = residual.sugar), data = wines_subset) +
+  geom_histogram(fill = 'purple', color = 'black') +
+  scale_x_sqrt()
+
+grid.arrange(rs1,rs2, rs3)
+```
+
+Sadly the log10-transformation will create a two-peaked distribution and the sqrt-transformation can not smooth out a long tail seen in this distribution. Out of these distributions, the log10-transformed distribution looks by far the most normally distributed.
 
 ### Distribution of Chlorides
-```{r}
+```{r echo=FALSE}
 ggplot(aes(x = chlorides), data = wines_subset) +
   geom_histogram(binwidth = 0.001, fill = 'purple', color = 'black') +
   scale_x_continuous(limits = c(0,0.25), breaks = seq(0, 0.25, 0.05))
@@ -140,7 +159,7 @@ ggplot(aes(x = chlorides), data = wines_subset) +
 
 Chlorides seem very normally distributed with a few outliers at the end of a long tail. Overall the variance of the values seems quite low.
 
-```{r}
+```{r echo=FALSE}
 summary(wines_subset$chlorides)
 ```
 
@@ -148,13 +167,13 @@ The quantiles seem very even, although there are a few large values.
 
 Lets cut the large values by only including values under 0.10.
 
-```{r}
+```{r echo=FALSE}
 wines_subset <- subset(wines_subset, chlorides < 0.10)
 ```
 
 
 ###Distribution of Free sulfur dioxide
-```{r}
+```{r echo=FALSE}
 ggplot(aes(x = free.sulfur.dioxide), data = wines_subset) +
   geom_histogram(binwidth = 1, fill = 'purple', color = 'black') +
   scale_x_continuous(limits = c(0, 150), breaks = seq(0, 150, 25))
@@ -162,7 +181,7 @@ ggplot(aes(x = free.sulfur.dioxide), data = wines_subset) +
 
 Free sulfur dioxide is quite normally distributed except the right side of the curve seems slightly less steep. There are a few outliers.
 
-```{r}
+```{r echo=FALSE}
 summary(wines_subset$free.sulfur.dioxide)
 ```
 
@@ -170,13 +189,13 @@ The quantiles explain the same story as the visualization. The third quantile is
 
 Lets cut those out by only including values under 80.
 
-```{r}
+```{r echo=FALSE}
 wines_subset <- subset(wines_subset, free.sulfur.dioxide < 80)
 ```
 
 
 ###Distribution of Total sulfur dioxide
-```{r}
+```{r echo=FALSE}
 ggplot(aes(x = total.sulfur.dioxide), data = wines_subset) +
   geom_histogram(binwidth = 2, fill = 'purple', color = 'black') +
   scale_x_continuous(limits = c(0, 280), breaks = seq(0, 280, 10))
@@ -184,7 +203,7 @@ ggplot(aes(x = total.sulfur.dioxide), data = wines_subset) +
 
 Total sulfur dioxide seems also quite normally distributed with a slightly less steep curve on the right side. The variance in values seems quite high since the tails are not that steep.
 
-```{r}
+```{r echo=FALSE}
 summary(wines_subset$total.sulfur.dioxide)
 ```
 
@@ -192,12 +211,12 @@ There also seems to be a few high values indicated by the maximum value.
 
 Lets cut them out by only including values under 270.
 
-```{r}
+```{r echo=FALSE}
 wines_subset <- subset(wines_subset, total.sulfur.dioxide < 270)
 ```
 
 ###Distribution of Density
-```{r}
+```{r echo=FALSE}
 ggplot(aes(x = density), data = wines_subset) +
   geom_histogram(binwidth = 0.0005, fill = 'purple', color = 'black') +
   scale_x_continuous(limits = c(0.985, 1.01), breaks = seq(0.985, 1.01, 0.005))
@@ -205,14 +224,14 @@ ggplot(aes(x = density), data = wines_subset) +
 
 Density values seems to have very little variance, almost all the values fall between 0.990 and 1.000.
 
-```{r}
+```{r echo=FALSE}
 summary(wines_subset$density)
 ```
 
 The 4th quantile seems to have a small tail but overall there seems to be no real outliers. Therefore there is no real need to subset density.
 
 ###Distribution of Ph
-```{r}
+```{r echo=FALSE}
 ggplot(aes(x = pH), data = wines_subset) +
   geom_histogram(binwidth = 0.05, fill = 'purple', color = 'black') +
     scale_x_continuous(limits = c(2.5, 4), breaks = seq(2.5, 4, 0.5))
@@ -220,14 +239,14 @@ ggplot(aes(x = pH), data = wines_subset) +
 
 Similar to density, the pH-values have little variation with most of the values falling between 3 and 3.5. The distribution looks to be very normal.
 
-```{r}
+```{r echo=FALSE}
 summary(wines_subset$pH)
 ```
 
 The quantiles seem to support what the visualization shows, there seems to not be any real outliers in the values. Therefore the subsetting of pH is unnecessary.
 
 ### Distribution of Sulphates
-```{r}
+```{r echo=FALSE}
 ggplot(aes(x = sulphates), data = wines_subset) +
   geom_histogram(binwidth = 0.01, fill = 'purple', color = 'black') +
       scale_x_continuous(limits = c(0, 1.5), breaks = seq(0, 1.5, 0.1))
@@ -235,33 +254,53 @@ ggplot(aes(x = sulphates), data = wines_subset) +
 
 Sulphates seem to be a bit long-tailed on the right side and the values have several peaks between 0.4 and 0.6.
 
-```{r}
+```{r echo=FALSE}
 summary(wines_subset$sulphates)
 ```
 The quantiles also indicate the existance of a less steep curve on the 3rd and 4th quantiles. And there are a few outliers on the end of the 4th quantile. The quantiles do not explain the peaks in the values which can only really be seen by visualizing the distribution.
 
 Lets cut the outliers by only accepting values under 0.9.
 
-```{r}
+```{r echo=FALSE}
 wines_subset <- subset(wines_subset, sulphates < 0.9)
 ```
 
 
 Alcohol
-```{r}
+```{r echo=FALSE}
 ggplot(aes(x = alcohol), data = wines_subset) +
   geom_histogram(binwidth = 0.1, fill = 'purple', color = 'black') +
       scale_x_continuous(limits = c(8, 15), breaks = seq(8, 15, 1))
+
 ```
 
 Alcohol seems to have most of the values at the low end of the curve, and the higher alcohol amounts being less frequent. The lowering curve is quite linear with little outliers. The variance also seems to be quite high.
 
-```{r}
+```{r echo=FALSE}
 summary(wines_subset$alcohol)
 ```
 
 Since the distribution is not really normal, the peaks are actually in the first quantile. Since the data is not normal, this can only be reliably observed by visualizing this data.
 Despite the variance being quite high, there doesn't seem to be any real outliers.
+
+Sadly the distribution is difficult to make normally distributed
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+al1 <- ggplot(aes(x = alcohol), data = wines_subset) +
+  geom_histogram(binwidth = 0.1, fill = 'purple', color = 'black') +
+      scale_x_continuous(limits = c(8, 15), breaks = seq(8, 15, 1))
+
+al2 <- ggplot(aes(x = alcohol), data = wines_subset) +
+  geom_histogram(fill = 'purple', color = 'black') +
+  scale_x_log10()
+
+al3 <- ggplot(aes(x = alcohol), data = wines_subset) +
+  geom_histogram(fill = 'purple', color = 'black') +
+  scale_x_sqrt()
+
+grid.arrange(al1, al2, al3)
+```
+
+The tail in the alcohol distribution can only be made slightly more normally distributed by smoothing the differences using the sqrt-transformation.
 
 ## Exploring bipartite relationships between variables
 
@@ -270,6 +309,7 @@ After running ggpairs to view the relationships of features, the plots and the c
 GGpairs output is not shown here as it looks poor on knit html. To get a clearer view of the variables relationships with wine quality, I will plot them as scatterplots:
 
 Run all the possible independent variables vs wine quality. Also plot lines for mean and median. Omit outliers from the independent variables. Use alpha to gain a clearer view of the independent variable variance. Jitter added to make the plots more effective.
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 wines$quality <- as.numeric(wines$quality)
 p1 <- qplot(x = quality, y = fixed.acidity,
