@@ -24,9 +24,11 @@ str(wines)
 
 ```
 
-#Initial analysis of the data
+#Exploratory analysis of the data
 
-Quality of wines
+##Analysis of variable distributions
+
+###Distribution of wine quality
 ```{r echo=FALSE}
 ggplot(aes(x = quality), data = wines) +
   geom_histogram(binwidth = 1, fill = 'purple', color = 'black')
@@ -35,14 +37,14 @@ ggplot(aes(x = quality), data = wines) +
 The qualities of wine seem to be distributed around the median of 6. The tail tail is slightly higher on the lower-quality side, with 5-quality wines being by far the 2nd most numerous quality after 6. It also seems that no wines were given either a 10, or 0-2. Additionally, only 5 wines were of quality 9. As vast majority of wines seem to have a quality of either 5 or 6.
 
 Therefore since there are so few wines qualities under 4 or over 8, we will subset the dataset to exclude them.
-```{r}
-wines_subset <- subset(wines, wines$quality > 3 & wines$quality < 9)
+```{r echo=FALSE}
+wines_subset <- subset(wines, quality > 3 & quality < 9)
 ```
 
 In order to determine independent variable distributions and discover possible outliers, lets also plot histograms of the independent variables.
 
-Fixed acidity
-```{r}
+###Distribution of Fixed acidity
+```{r echo=FALSE}
 ggplot(aes(x = fixed.acidity), data = wines_subset) +
   geom_histogram(binwidth = 0.1, fill = 'purple', color = 'black') +
   scale_x_continuous(limits = c(4,12), breaks = seq(4, 12, 0.5))
@@ -54,10 +56,17 @@ Fixed acidity seems very normally distributed with values falling between around
 summary(wines_subset$fixed.acidity)
 ```
 
-Despite the data being quite normally distributed, there seems to be at least a few very high outliers.
+Despite the data being quite normally distributed, there seems to be at least a few high outliers.
 
-Volatile acidity
-```{r}
+Looking at the distribution, lets cut the outliers by using only values less than 10.
+
+```{r echo=FALSE}
+wines_subset <- subset(wines_subset, fixed.acidity < 10)
+```
+
+
+###Distribution of Volatile acidity
+```{r echo=FALSE}
 ggplot(aes(x = volatile.acidity), data = wines_subset) +
   geom_histogram(binwidth = 0.01, fill = 'purple', color = 'black') +
   scale_x_continuous(limits = c(0.05,1.1), breaks = seq(0.05, 1.1, 0.05))
@@ -71,17 +80,38 @@ summary(wines_subset$volatile.acidity)
 
 The final 4th quantile of volatile acidity seems to be inside the long tail between 0.32 and 1.1. The values seem to have some very high outliers at the end of the long tail.
 
-Citric acid
+Lets cut out values over 0.70.
+
 ```{r}
+wines_subset <- subset(wines_subset, volatile.acidity < 0.70)
+```
+
+
+###Distribution of Citric acid
+```{r echo=FALSE}
 ggplot(aes(x = citric.acid), data = wines_subset) +
   geom_histogram(binwidth = 0.01, fill = 'purple', color = 'black') +
   scale_x_continuous(limits = c(0,1.25), breaks = seq(0, 1.25, 0.1))
 ```
 
-Citric acid seems to also be quite normally distributed (albeit with a long tail) with a few peculiar exceptions that can distort the interpretation of the data. Citric acid has huge spikes in frequencies at 0.5 and 0.75 it seems. Especially the one at 0.5 is curious. This may be due to the fact the distillers of more acidic wine may opt for this exact amount of citric acid.
+Citric acid seems to also be quite normally distributed (albeit with a long tail) with a few peculiar exceptions that can distort the interpretation of the data. Citric acid has huge spikes in frequencies at 0.5 and 0.75 it seems. Especially the one at 0.5 is curious as it almost rivals the most frequent citric.acid levels at around 0.3. This may be due to the fact that the distillers of more acidic wine may opt for this exact amount of citric acid.
 
-Residual sugar
+
+```{r echo=FALSE}
+summary(wines_subset$citric.acid)
+```
+
+The quantiles seem quite normally distributed with the exception of a few outliers in the final quantile. These spikes are only really noticeable in the visualization.
+
+To exclude outliers, lets include only values less than or equal to 0.75 (to make sure the high citric.acid spike gets included).
+
 ```{r}
+wines_subset <- subset(wines_subset, citric.acid <= 0.75)
+```
+
+
+###Distribution of Residual sugar
+```{r echo=FALSE}
 ggplot(aes(x = residual.sugar), data = wines_subset) +
   geom_histogram(binwidth = 0.2, fill = 'purple', color = 'black') +
   scale_x_continuous(limits = c(0,25), breaks = seq(0, 25, 1))
@@ -89,31 +119,63 @@ ggplot(aes(x = residual.sugar), data = wines_subset) +
 
 Residual sugar seems very long tailed, with most wine not having much sugar.
 
-Chlorides
+```{r}
+summary(wines_subset$residual.sugar)
+```
+
+As seen in the visualization, mean is significantly higher and final quantiles are quite long after the first quantile, indicating the long tail also seen in the visualization. There are also a few very large outliers. 
+
+To cut them out, lets include only values less than 20.
+```{r}
+wines_subset <- subset(wines_subset, residual.sugar < 20)
+```
+
+
+### Distribution of Chlorides
 ```{r}
 ggplot(aes(x = chlorides), data = wines_subset) +
   geom_histogram(binwidth = 0.001, fill = 'purple', color = 'black') +
   scale_x_continuous(limits = c(0,0.25), breaks = seq(0, 0.25, 0.05))
 ```
 
-Chlorides seem very normally distributed with a few outliers on the end of a long tail. Overall the variance of the values seems quite low
+Chlorides seem very normally distributed with a few outliers at the end of a long tail. Overall the variance of the values seems quite low.
 
-Free sulfur dioxide
+```{r}
+summary(wines_subset$chlorides)
+```
+
+The quantiles seem very even, although there are a few large values.
+
+Lets cut the large values by only including values under 0.10.
+
+```{r}
+wines_subset <- subset(wines_subset, chlorides < 0.10)
+```
+
+
+###Distribution of Free sulfur dioxide
 ```{r}
 ggplot(aes(x = free.sulfur.dioxide), data = wines_subset) +
   geom_histogram(binwidth = 1, fill = 'purple', color = 'black') +
   scale_x_continuous(limits = c(0, 150), breaks = seq(0, 150, 25))
 ```
 
-Free sulfur dioxide is quite normally distributed with a few huge values in the long tail.
+Free sulfur dioxide is quite normally distributed except the right side of the curve seems slightly less steep. There are a few outliers.
 
 ```{r}
 summary(wines_subset$free.sulfur.dioxide)
 ```
 
-The quantile-values indicate just that, the third quantile is 46 and the maximum value is 138.50.
+The quantiles explain the same story as the visualization. The third quantile is 46 which is slightly longer than the 2nd quantile and the maximum value is 138.50 indicating some outliers.
 
-Total sulfur dioxide
+Lets cut those out by only including values under 80.
+
+```{r}
+wines_subset <- subset(wines_subset, free.sulfur.dioxide < 80)
+```
+
+
+###Distribution of Total sulfur dioxide
 ```{r}
 ggplot(aes(x = total.sulfur.dioxide), data = wines_subset) +
   geom_histogram(binwidth = 2, fill = 'purple', color = 'black') +
@@ -126,22 +188,30 @@ Total sulfur dioxide seems also quite normally distributed with a slightly less 
 summary(wines_subset$total.sulfur.dioxide)
 ```
 
+There also seems to be a few high values indicated by the maximum value.
 
-Density
+Lets cut them out by only including values under 270.
+
+```{r}
+wines_subset <- subset(wines_subset, total.sulfur.dioxide < 270)
+```
+
+###Distribution of Density
 ```{r}
 ggplot(aes(x = density), data = wines_subset) +
   geom_histogram(binwidth = 0.0005, fill = 'purple', color = 'black') +
   scale_x_continuous(limits = c(0.985, 1.01), breaks = seq(0.985, 1.01, 0.005))
 ```
 
-Density values have very little variance, almost all the values fall between 0.990 and 1.000! 
+Density values seems to have very little variance, almost all the values fall between 0.990 and 1.000.
 
 ```{r}
 summary(wines_subset$density)
 ```
- The 4th quantile seems to have a small tail but overall there seems to be no real outliers.
 
-Ph
+The 4th quantile seems to have a small tail but overall there seems to be no real outliers. Therefore there is no real need to subset density.
+
+###Distribution of Ph
 ```{r}
 ggplot(aes(x = pH), data = wines_subset) +
   geom_histogram(binwidth = 0.05, fill = 'purple', color = 'black') +
@@ -154,9 +224,9 @@ Similar to density, the pH-values have little variation with most of the values 
 summary(wines_subset$pH)
 ```
 
-The quantiles seem to support what the visualization shows, there seems to not be any real outliers in the values.
+The quantiles seem to support what the visualization shows, there seems to not be any real outliers in the values. Therefore the subsetting of pH is unnecessary.
 
-Sulphates
+### Distribution of Sulphates
 ```{r}
 ggplot(aes(x = sulphates), data = wines_subset) +
   geom_histogram(binwidth = 0.01, fill = 'purple', color = 'black') +
@@ -170,6 +240,13 @@ summary(wines_subset$sulphates)
 ```
 The quantiles also indicate the existance of a less steep curve on the 3rd and 4th quantiles. And there are a few outliers on the end of the 4th quantile. The quantiles do not explain the peaks in the values which can only really be seen by visualizing the distribution.
 
+Lets cut the outliers by only accepting values under 0.9.
+
+```{r}
+wines_subset <- subset(wines_subset, sulphates < 0.9)
+```
+
+
 Alcohol
 ```{r}
 ggplot(aes(x = alcohol), data = wines_subset) +
@@ -177,29 +254,29 @@ ggplot(aes(x = alcohol), data = wines_subset) +
       scale_x_continuous(limits = c(8, 15), breaks = seq(8, 15, 1))
 ```
 
-Alcohol seems to have most of the values at the low end of the curve, and the higher alcohol amounts being less frequent. The lowering curve is quite linear with little outliers.
+Alcohol seems to have most of the values at the low end of the curve, and the higher alcohol amounts being less frequent. The lowering curve is quite linear with little outliers. The variance also seems to be quite high.
 
 ```{r}
 summary(wines_subset$alcohol)
 ```
 
 Since the distribution is not really normal, the peaks are actually in the first quantile. Since the data is not normal, this can only be reliably observed by visualizing this data.
+Despite the variance being quite high, there doesn't seem to be any real outliers.
 
+## Exploring bipartite relationships between variables
 
 After running ggpairs to view the relationships of features, the plots and the correlation values seem to indicate a poor correlation between the independant variables and the wine quality. This seems quite understandable as it is difficult to imagine there being linear relationships between wine quality and for example salt-, sugar-, and alcohol-content of the wine or acidity.
 
 GGpairs output is not shown here as it looks poor on knit html. To get a clearer view of the variables relationships with wine quality, I will plot them as scatterplots:
 
 Run all the possible independent variables vs wine quality. Also plot lines for mean and median. Omit outliers from the independent variables. Use alpha to gain a clearer view of the independent variable variance. Jitter added to make the plots more effective.
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 wines$quality <- as.numeric(wines$quality)
 p1 <- qplot(x = quality, y = fixed.acidity,
             data = wines_subset, alpha = 1/10,
             position = 'jitter') +
   geom_line(stat = 'summary', fun.y = median, color = 'blue') +
   geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  ylim(c(quantile(wines$fixed.acidity, 0.01), 
-                quantile(wines$fixed.acidity, 0.99))) +
   scale_x_continuous(breaks = c(0,10,1)) +
   theme(legend.position="none")
 
@@ -208,8 +285,6 @@ p2 <- qplot(x = quality, y = volatile.acidity,
             position = 'jitter') +
   geom_line(stat = 'summary', fun.y = median, color = 'blue') +
   geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  ylim(c(quantile(wines$volatile.acidity, 0.01), 
-                quantile(wines$volatile.acidity, 0.99))) +
   scale_x_continuous(breaks = c(0,10,1)) +
   theme(legend.position="none")
 
@@ -218,8 +293,6 @@ p3 <- qplot(x = quality, y = citric.acid,
             position = 'jitter') +
   geom_line(stat = 'summary', fun.y = median, color = 'blue') +
   geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  ylim(c(quantile(wines$citric.acid, 0.01), 
-                quantile(wines$citric.acid, 0.99))) +
   scale_x_continuous(breaks = c(0,10,1)) +
   theme(legend.position="none")
 
@@ -228,8 +301,6 @@ p4 <- qplot(x = quality, y = residual.sugar,
             position = 'jitter') +
   geom_line(stat = 'summary', fun.y = median, color = 'blue') +
   geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  ylim(c(quantile(wines$residual.sugar, 0.01), 
-                quantile(wines$residual.sugar, 0.99))) +
   scale_x_continuous(breaks = c(0,10,1)) +
   theme(legend.position="none")
 
@@ -238,8 +309,6 @@ p5 <- qplot(x = quality, y = chlorides,
             position = 'jitter') +
   geom_line(stat = 'summary', fun.y = median, color = 'blue') +
   geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  ylim(c(quantile(wines$chlorides, 0.01), 
-                quantile(wines$chlorides, 0.99))) +
   scale_x_continuous(breaks = c(0,10,1)) +
   theme(legend.position="none")
 
@@ -248,8 +317,6 @@ p6 <- qplot(x = quality, y = free.sulfur.dioxide,
             position = 'jitter') +
   geom_line(stat = 'summary', fun.y = median, color = 'blue') +
   geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  ylim(c(quantile(wines$free.sulfur.dioxide, 0.01), 
-                quantile(wines$free.sulfur.dioxide, 0.99))) +
   scale_x_continuous(breaks = c(0,10,1)) +
   theme(legend.position="none")
 
@@ -258,8 +325,6 @@ p7 <- qplot(x = quality, y = total.sulfur.dioxide,
             position = 'jitter') +
   geom_line(stat = 'summary', fun.y = median, color = 'blue') +
   geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  ylim(c(quantile(wines$total.sulfur.dioxide, 0.01), 
-                quantile(wines$total.sulfur.dioxide, 0.99))) +
   scale_x_continuous(breaks = c(0,10,1)) +
   theme(legend.position="none")
 
@@ -268,8 +333,6 @@ p8 <- qplot(x = quality, y = density,
             position = 'jitter') +
   geom_line(stat = 'summary', fun.y = median, color = 'blue') +
   geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  ylim(c(quantile(wines$density, 0.01), 
-                quantile(wines$density, 0.99))) +
   scale_x_continuous(breaks = c(0,10,1)) +
   theme(legend.position="none")
 
@@ -278,8 +341,6 @@ p9 <- qplot(x = quality, y = pH,
             position = 'jitter') +
   geom_line(stat = 'summary', fun.y = median, color = 'blue') +
   geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  ylim(c(quantile(wines$pH, 0.01), 
-                quantile(wines$pH, 0.99))) +
   scale_x_continuous(breaks = c(0,10,1)) +
   theme(legend.position="none")
 
@@ -288,8 +349,6 @@ p10 <- qplot(x = quality, y = sulphates,
             position = 'jitter') +
   geom_line(stat = 'summary', fun.y = median, color = 'blue') +
   geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  ylim(c(quantile(wines$sulphates, 0.01), 
-                quantile(wines$sulphates, 0.99))) +
   scale_x_continuous(breaks = c(0,10,1)) +
   theme(legend.position="none")
 
@@ -298,8 +357,6 @@ p11 <- qplot(x = quality, y = alcohol,
             position = 'jitter') +
   geom_line(stat = 'summary', fun.y = median, color = 'blue') +
   geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  ylim(c(quantile(wines$alcohol, 0.01), 
-                quantile(wines$alcohol, 0.99))) +
   scale_x_continuous(breaks = c(0,10,1)) +
   theme(legend.position="none")
 ```
@@ -409,7 +466,8 @@ wines.stats_by_quality[,c('quality', 'mean_alcohol',
 wines.stats_by_quality[,c('quality', 'mean_density',
                           'median_density', 'variance_density')]
 wines.stats_by_quality[,c('quality', 'mean_volatile.acidity',
-                          'median_volatile.acidity', 'variance_volatile.acidity')]
+                          'median_volatile.acidity',
+                          'variance_volatile.acidity')]
 ```
 
 Looking at the mean and median of alcohol, they seem to follow a clear trend of increasing at a non-linear, slowing rate. The variance of alcohol at all quality levels is high though.
