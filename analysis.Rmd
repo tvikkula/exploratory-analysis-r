@@ -473,6 +473,22 @@ ggplot(aes(x = residual.sugar, y = alcohol, color = quality_factor),
 
 When looking at the plot, there seems to be a slight pattern of qualities being higher at the high alcohol-low sugar end of the plot. This, however, might not indicate a meaningful relationship here, instead the combination of positive correlation of alcohol vs quality and the dataset having mostly low-sugar wines could provide an explanation to this phenomenon.
 
+Lets look at the ratio of sugar and alcohol vs quality in a boxplot
+```{r echo=FALSE}
+ggplot(aes(x = quality_factor, y = (alcohol/residual.sugar)),
+    data = wines_subset) +
+  geom_boxplot()
+```
+
+There does seem to be some variance between the ratio-values at different qualities. The relationship is clearly nonlinear and also non-monotonic.
+
+Lets test the correlation using Spearman
+```{r echo=FALSE}
+cor.test(as.numeric(wines_subset$quality), (wines_subset$alcohol / wines_subset$residual.sugar), method = 'spearman')
+```
+
+There seems to be some small positive correlation in the model. The correlation is unreliable, however, as the relationship is clearly non-monotonic therefore breaking the assumptions of a Spearman test.
+
 ####Citric acid vs volatile acidity
 
 ```{r echo=FALSE}
@@ -491,14 +507,21 @@ ggplot(aes(x = citric.acid, y = volatile.acidity, color = quality_factor),
 
 Now this might be interesting. In the middle of the cluster, there seems to be a high concentration of higher quality wines. Could there be a relationship here?
 
-Lets see if there is a correlation between the ration of citric.acidity and volatile.acidity vs quality
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-
-```
-
+Lets see if there is a correlation between the ratio of citric.acidity and volatile.acidity vs quality
 ```{r echo=FALSE}
-cor.test(as.numeric(wines_subset$quality), wines_subset$citric_volatile_acidity, method = 'spearman')
+ggplot(aes(x = quality_factor, y = (citric.acid/volatile.acidity)),
+    data = wines_subset) +
+  geom_boxplot()
 ```
+
+There seems to be slight positive correlation seen in the boxplot.
+
+Lets do a Spearman test:
+```{r echo=FALSE}
+cor.test(as.numeric(wines_subset$quality), (wines_subset$citric.acid / wines_subset$volatile.acidity), method = 'spearman')
+```
+
+The test seems to comply with what the boxplot already told us - there does seem to be a small positive correlation.
 
 ####Citric acid vs residual sugar
 ```{r echo=FALSE}
@@ -509,23 +532,42 @@ ggplot(aes(x = citric.acid, y = residual.sugar), data = wines_subset) +
 This plot is also difficult to follow as the residual sugar values are so heavily skewed towards the low amounts of sugar.
 No clear patterns emerge from the plot, except perhaps the fact that it seems that low citric.acid is only given to wines with low amounts of sugar. But that may also be due to the fact that the vast majority of wines are low in sugar.
 
+Lets see if we can find anything by coloring the plot with quality.
 
-
-plot5 <- ggplot(aes(x = quality, y = density),
-                data = subset(wines, wines$quality != 9)) +
-  geom_boxplot() +
-  coord_cartesian(ylim = c(quantile(wines$density, 0.05), 
-                           quantile(wines$density, 0.95)))
-
-plot6 <- ggplot(aes(x = quality, y = alcohol),
-                 data = subset(wines, wines$quality != 9)) +
-  geom_boxplot() +
-  coord_cartesian(ylim = c(quantile(wines$alcohol, 0.05), 
-                           quantile(wines$alcohol, 0.95)))
-
-grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6,
-             ncol=2)
+```{r echo=FALSE}
+ggplot(aes(x = citric.acid, y = residual.sugar, color = quality_factor),
+    data = wines_subset) +
+  geom_point()
 ```
+
+The doesn't seem to be any visible patterns in the scatterplot.
+
+Lets see if there is a correlation between the ratio of citric.acidity and volatile.acidity vs quality
+```{r echo=FALSE}
+ggplot(aes(x = quality_factor, y = (citric.acid/residual.sugar)),
+    data = wines_subset) +
+  geom_boxplot()
+```
+
+The patterns here seem very small. Lets zoom the plot a bit to see more.
+```{r echo=FALSE}
+ggplot(aes(x = quality_factor, y = (citric.acid/residual.sugar)),
+    data = wines_subset) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(0,0.25))
+```
+
+The correlation is tiny, but it seems to be there. The correlation looks nonlinear and non-monotonic, forming a kind of a wave-pattern in its relationship with quality.
+
+Lets do a Spearman test:
+```{r echo=FALSE}
+cor.test(as.numeric(wines_subset$quality), (wines_subset$citric.acid / wines_subset$residual.sugar), method = 'spearman')
+```
+
+The seems to be some small positive correlation in the relationship of the ratio of citric acid and residual sugar vs quality. The correlation test is, however, unreliable as the relationship is clearly non-monotonic.
+
+
+
 
 The boxplots further identify the problem: The features simply do not seem to be enough in explaining the quality of good wines. The most of the features have high variance in wines of good quality. And the features show very low, nonlinear correlation.
 
