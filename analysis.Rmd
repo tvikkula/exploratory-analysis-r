@@ -58,7 +58,7 @@ summary(wines_subset$fixed.acidity)
 
 Despite the data being quite normally distributed, there seems to be at least a few high outliers.
 
-Looking at the distribution, lets cut the outliers by using only values less than 10.
+Looking at the distribution, lets cut the outliers by using only values less than 10. Values higher than that seem to be outliers.
 
 ```{r echo=FALSE}
 wines_subset <- subset(wines_subset, fixed.acidity < 10)
@@ -72,7 +72,7 @@ ggplot(aes(x = volatile.acidity), data = wines_subset) +
   scale_x_continuous(limits = c(0.05,1.1), breaks = seq(0.05, 1.1, 0.05))
 ```
 
-Volatile acidity seems almost normally distributed, except it has a long tail on the incresing side of the values. Lets look at the quantiles of volatile acidity
+Volatile acidity seems almost normally distributed, except it has a long tail on the incresing side of the values. Lets look at the quantiles of volatile acidity.
 
 ```{r echo=FALSE}
 summary(wines_subset$volatile.acidity)
@@ -129,26 +129,6 @@ To cut them out, lets include only values less than 20.
 ```{r}
 wines_subset <- subset(wines_subset, residual.sugar < 20)
 ```
-
-The make the feature more normally distributed, let us attempt to transform the data using log10 and sqrt.
-
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-rs1 <- ggplot(aes(x = residual.sugar), data = wines_subset) +
-  geom_histogram(binwidth = 0.2, fill = 'purple', color = 'black') +
-  scale_x_continuous(limits = c(0,25), breaks = seq(0, 25, 1))
-
-rs2 <- ggplot(aes(x = residual.sugar), data = wines_subset) +
-  geom_histogram(fill = 'purple', color = 'black') +
-  scale_x_log10()
-
-rs3 <- ggplot(aes(x = residual.sugar), data = wines_subset) +
-  geom_histogram(fill = 'purple', color = 'black') +
-  scale_x_sqrt()
-
-grid.arrange(rs1,rs2, rs3)
-```
-
-Sadly the log10-transformation will create a two-peaked distribution and the sqrt-transformation can not smooth out a long tail seen in this distribution. Out of these distributions, the log10-transformed distribution looks by far the most normally distributed.
 
 ### Distribution of Chlorides
 ```{r echo=FALSE}
@@ -280,180 +260,256 @@ Alcohol seems to have most of the values at the low end of the curve, and the hi
 summary(wines_subset$alcohol)
 ```
 
-Since the distribution is not really normal, the peaks are actually in the first quantile. Since the data is not normal, this can only be reliably observed by visualizing this data.
-Despite the variance being quite high, there doesn't seem to be any real outliers.
-
-Sadly the distribution is difficult to make normally distributed
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-al1 <- ggplot(aes(x = alcohol), data = wines_subset) +
-  geom_histogram(binwidth = 0.1, fill = 'purple', color = 'black') +
-      scale_x_continuous(limits = c(8, 15), breaks = seq(8, 15, 1))
-
-al2 <- ggplot(aes(x = alcohol), data = wines_subset) +
-  geom_histogram(fill = 'purple', color = 'black') +
-  scale_x_log10()
-
-al3 <- ggplot(aes(x = alcohol), data = wines_subset) +
-  geom_histogram(fill = 'purple', color = 'black') +
-  scale_x_sqrt()
-
-grid.arrange(al1, al2, al3)
-```
-
-The tail in the alcohol distribution can only be made slightly more normally distributed by smoothing the differences using the sqrt-transformation.
-
-## Exploring bipartite relationships between variables
+## Exploring bipartite relationships between independent variables and wine quality
 
 After running ggpairs to view the relationships of features, the plots and the correlation values seem to indicate a poor correlation between the independant variables and the wine quality. This seems quite understandable as it is difficult to imagine there being linear relationships between wine quality and for example salt-, sugar-, and alcohol-content of the wine or acidity.
 
-GGpairs output is not shown here as it looks poor on knit html. To get a clearer view of the variables relationships with wine quality, I will plot them as scatterplots:
+GGpairs output is not shown here as it looks poor on knit html. To get a clearer view of the variables relationships with wine quality, I will plot them as boxplots. The boxplots are a good way to interpret variation of values of the independent variables against our dependant variable, which can be interpreted as a categorical variable.
 
-Run all the possible independent variables vs wine quality. Also plot lines for mean and median. Omit outliers from the independent variables. Use alpha to gain a clearer view of the independent variable variance. Jitter added to make the plots more effective.
+In the boxplots we visualize some promising possible independent variables vs wine quality.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-wines$quality <- as.numeric(wines$quality)
-p1 <- qplot(x = quality, y = fixed.acidity,
-            data = wines_subset, alpha = 1/10,
-            position = 'jitter') +
-  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
-  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  scale_x_continuous(breaks = c(0,10,1)) +
-  theme(legend.position="none")
-
-p2 <- qplot(x = quality, y = volatile.acidity,
-            data = wines_subset, alpha = 1/10,
-            position = 'jitter') +
-  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
-  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  scale_x_continuous(breaks = c(0,10,1)) +
-  theme(legend.position="none")
-
-p3 <- qplot(x = quality, y = citric.acid,
-            data = wines_subset, alpha = 1/10,
-            position = 'jitter') +
-  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
-  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  scale_x_continuous(breaks = c(0,10,1)) +
-  theme(legend.position="none")
-
-p4 <- qplot(x = quality, y = residual.sugar,
-            data = wines_subset, alpha = 1/10,
-            position = 'jitter') +
-  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
-  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  scale_x_continuous(breaks = c(0,10,1)) +
-  theme(legend.position="none")
-
-p5 <- qplot(x = quality, y = chlorides,
-            data = wines_subset, alpha = 1/10,
-            position = 'jitter') +
-  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
-  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  scale_x_continuous(breaks = c(0,10,1)) +
-  theme(legend.position="none")
-
-p6 <- qplot(x = quality, y = free.sulfur.dioxide,
-            data = wines_subset, alpha = 1/10,
-            position = 'jitter') +
-  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
-  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  scale_x_continuous(breaks = c(0,10,1)) +
-  theme(legend.position="none")
-
-p7 <- qplot(x = quality, y = total.sulfur.dioxide,
-            data = wines_subset, alpha = 1/10,
-            position = 'jitter') +
-  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
-  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  scale_x_continuous(breaks = c(0,10,1)) +
-  theme(legend.position="none")
-
-p8 <- qplot(x = quality, y = density,
-            data = wines_subset, alpha = 1/10,
-            position = 'jitter') +
-  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
-  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  scale_x_continuous(breaks = c(0,10,1)) +
-  theme(legend.position="none")
-
-p9 <- qplot(x = quality, y = pH,
-            data = wines_subset, alpha = 1/10,
-            position = 'jitter') +
-  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
-  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  scale_x_continuous(breaks = c(0,10,1)) +
-  theme(legend.position="none")
-
-p10 <- qplot(x = quality, y = sulphates,
-             data = wines_subset, alpha = 1/10,
-            position = 'jitter') +
-  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
-  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  scale_x_continuous(breaks = c(0,10,1)) +
-  theme(legend.position="none")
-
-p11 <- qplot(x = quality, y = alcohol,
-             data = wines_subset, alpha = 1/10,
-            position = 'jitter') +
-  geom_line(stat = 'summary', fun.y = median, color = 'blue') +
-  geom_line(stat = 'summary', fun.y = mean, color = 'red') +
-  scale_x_continuous(breaks = c(0,10,1)) +
-  theme(legend.position="none")
-```
-
-```{r echo=FALSE}
-# grid.arrange look bad, just print the plots:
-p1
-p2
-p3
-p4
-p5
-p6
-p7
-p8
-p9
-p10
-p11
-```
-
-Looking at the plots it is evident that the data is very dense at qualities of 5 and 6, and significantly less dense at other qualities.
-
-The mean and median of features seems quite similar (largest outliers have been omitted from the plots, which will exaggarate this). Additionally, the correlation of all features with wine quality seem very small or nonexistant. The mean and median values of the features change very little between each wine quality, with the exception of alcohol, which seems to decrease at first for low quality wines, and then linearly increase as quality increases.
-
-Overall, the variance in the variables seems very high in most cases. Chlorides seems to have the lowest variance for good quality wines, but funnily enough the chloride level seems very similar between good and poor wines!
+Looking at the ggpairs-output, fixed.acidity, volatile.acidity, residual.sugar, total.sulfur.dioxide, citric.acid, density and alcohol seemed like the most promising dependant variables to affect wine quality.
 
 In order to get a better estimate on the variance in the independent variable values, lets create boxplots of the relationships between the independent variables and wine quality.
 
-Sulphates, citric.acid and pH seem to not affect the wine quality at all, since their mean/median seems very static and variance very high in all wine qualities. Also the chlorides, free.sulphur.dioxides seem to differ very little between wine qualities. Therefore these variables will not be studied further in the boxplots. 
+###Box plots of wine quality and promising independent variables (fixed.acidity, volatile.acidity, residual.sugar, total.sulfur.dioxide, citric.acid, density, alcohol)
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+# Set quality to a factor
+wines_subset$quality_factor <- factor(wines_subset$quality,
+                        levels = c("1","2","3","4","5","6","7","8","9","10"))
+```
 
-Box plots of wine quality and alcohol, density, chlorides, fixed.acidity, residual.sugar, and volatile.acidity
+####Fixed acidity vs quality
 ```{r echo=FALSE}
-wines$quality <- factor(wines$quality,
-                        levels =c("1","2","3","4","5","6","7","8","9","10"))
+ggplot(aes(x = quality_factor, y = fixed.acidity),
+      data = wines_subset) +
+  geom_boxplot()
+```
 
-plot1 <- ggplot(aes(x = quality, y = fixed.acidity),
-                data = subset(wines, wines$quality != 9)) +
-  geom_boxplot() +
-  coord_cartesian(ylim = c(quantile(wines$fixed.acidity, 0.05), 
-                           quantile(wines$fixed.acidity, 0.95)))
+Looking at the relationships in the boxplot, there still seems to be some outliers in the fixed acidity-values. Looking at the means and the middle quantiles, it seems that the correlation with wine quality seems quite low, non-linear and even non-modal. At qualities 4-7 the fixed.acidity seems to reduce but at quality of 8 the fixed.acidity rises again.
 
-plot2 <- ggplot(aes(x = quality, y = volatile.acidity),
-                data = subset(wines, wines$quality != 9)) +
+Lets zoom a bit closer to see the middle quantiles better
+```{r echo=FALSE}
+ggplot(aes(x = quality_factor, y = fixed.acidity),
+      data = wines_subset) +
   geom_boxplot() +
-  coord_cartesian(ylim = c(quantile(wines$volatile.acidity, 0.05), 
-                           quantile(wines$volatile.acidity, 0.95)))
+  coord_cartesian(ylim = c(6,8))
+```
 
-plot3 <- ggplot(aes(x = quality, y = residual.sugar),
-                data = subset(wines, wines$quality != 9)) +
-  geom_boxplot() +
-  coord_cartesian(ylim = c(quantile(wines$residual.sugar, 0.05), 
-                           quantile(wines$residual.sugar, 0.95)))
+In the zoomed boxplot the correlations seem to indicate the same conclusions as in the non-zoomed one.
 
-plot4 <- ggplot(aes(x = quality, y = total.sulfur.dioxide),
-                data = subset(wines, wines$quality != 9)) +
+Due to the correlation looking obviously nonlinear and non-modal, the correlation tests will likely provide an incorrect metric on the correlation of the variables.
+
+```{r echo=FALSE}
+cor.test(as.numeric(wines_subset$quality), wines_subset$fixed.acidity, method = 'spearman')
+```
+
+The correlation looks very low but it might be higher in actuality due to the non-modal nature of the relationship.
+
+####Volatile acidity vs quality
+```{r echo=FALSE}
+ggplot(aes(x = quality_factor, y = volatile.acidity),
+      data = wines_subset) +
+  geom_boxplot()
+```
+
+In volatile acidity the variance of values between different qualities seems higher. The correlation seems non-modal and non-linear here as well.
+
+```{r echo=FALSE}
+ggplot(aes(x = quality_factor, y = volatile.acidity),
+      data = wines_subset) +
   geom_boxplot() +
-  coord_cartesian(ylim = c(quantile(wines$total.sulfur.dioxide, 0.05), 
-                           quantile(wines$total.sulfur.dioxide, 0.95)))
+  coord_cartesian(ylim = c(0.18, 0.45))
+```
+In the zoomed plot, the volatile acidity seems to drop at first between qualities 4-6 and then stay at somewhat similar levels.
+
+Lets run a Spearman correlation test to quantify this correlation. Spearman is used as the correlation seems to be nonlinear.
+```{r echo=FALSE}
+cor.test(as.numeric(wines_subset$quality), wines_subset$volatile.acidity, method = 'spearman')
+```
+
+The variables seem to have slight negative correlation as the boxplots suggest.
+
+####Residual sugar vs quality
+```{r echo=FALSE}
+ggplot(aes(x = quality_factor, y = residual.sugar),
+      data = wines_subset) +
+  geom_boxplot()
+```
+
+Residual sugar seems to have fewer outliers in the boxplot than the previous variables. Also the variance between qualities seems nonexistant in the first quantile of the data and then the variance will rise significantly in the next quantiles. This seems to follow the significant long-tailed pattern seen in the distribution of residual.sugar. 
+
+Around the mean the quality and residual.sugar correlation seems to follow a strong bimodal pattern. Low quality wines seem to not be as sweet as the average wines and the sweetness starts to drop again once we move to higher quality wines (although 8-quality wines seem slightly sweet than the 7-quality ones).
+
+Besides the non-modal correlation pattern, there seems to be significant variation between residual.sugar values and quality. But due to the non-modal nature of the relationship, a correlation test may give slightly misguided results and hence I will trust the visualization on the nature of the relationship.
+
+Lets do the correlation test anyway (using Spearman again):
+```{r echo=FALSE}
+cor.test(as.numeric(wines_subset$quality), wines_subset$residual.sugar, method = 'spearman')
+```
+
+The correlation value seems really low, which I feel does not tell the whole story on the relationship between residual.sugar and quality.
+
+####Total sulfur dioxide vs quality
+
+```{r echo=FALSE}
+ggplot(aes(x = quality_factor, y = total.sulfur.dioxide),
+      data = wines_subset) +
+  geom_boxplot()
+```
+
+There seem to be a few rather large outliers here and once again some nonlinear and non-modal correlation can be seen in the data. It seems that the total sulfur dioxide starts lower at lower quality wines, then rising a bit at average quality wiens and then lowering again as the quality increases and then reaching its minimum at quality 7 and then remains at similar values at quality 8 as well.
+
+Lets look at the Spearman correlation:
+```{r echo=FALSE}
+cor.test(as.numeric(wines_subset$quality), wines_subset$total.sulfur.dioxide, method = 'spearman')
+```
+
+Despite the nonmodal relationship of the variables, the correlation test shows some slight negative correlation. If we ignore the rising trend between qualities 4 and 5, the relationship does seem quite clearly like a modal, nonlinear, negative correlation.
+
+####Citric acid vs quality
+
+```{r echo=FALSE}
+ggplot(aes(x = quality_factor, y = citric.acid),
+      data = wines_subset) +
+  geom_boxplot()
+```
+
+Looking at the plot, there seem to be quite of few values outside the middle quantiles. The middle quantiles though seem to have quite low variance, especially at higher qualities. The relationship with quality also seems quite modal.
+
+```{r}
+ggplot(aes(x = quality_factor, y = citric.acid),
+      data = wines_subset) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(0.2,0.4))
+```
+
+Zooming into the data, we can definately see some nonlinear positive correlation here.
+
+Lets look the correlation with a Spearman test:
+```{r}
+cor.test(as.numeric(wines_subset$quality), wines_subset$citric.acid, method = 'spearman')
+```
+
+The test seems to indicate that the positive correlation is very low. This could, in part, be explained by the outliers in the dataset and the high variance of citric.acid the outer quantiles.
+
+####Density vs quality
+
+```{r echo=FALSE}
+ggplot(aes(x = quality_factor, y = density),
+      data = wines_subset) +
+  geom_boxplot()
+```
+
+The relationship, once again, seems non-modal, but there is definite variation between different wine qualities causing us to believe that there is some sort of a relationship between density and quality.
+
+Lets try a Spearman test:
+```{r echo=FALSE}
+cor.test(as.numeric(wines_subset$quality), wines_subset$density, method = 'spearman')
+```
+
+Despite the non-modality, there seems to be some definite correlation between the variables according to the Spearman test.
+
+####Alcohol vs quality
+```{r echo=FALSE}
+ggplot(aes(x = quality_factor, y = alcohol),
+      data = wines_subset) +
+  geom_boxplot()
+```
+
+Once again, there seems to be a clear non-modal relationship between the variables. Interestingly enough, the pattern looks very similar to other independent variables. The correlation seems positive here though.
+
+Lets try a Spearman test:
+```{r echo=FALSE}
+cor.test(as.numeric(wines_subset$quality), wines_subset$alcohol, method = 'spearman')
+```
+
+Despite the non-modality, the positive correlation seems to clearly be there.
+
+###Trying out curious relationships between independet variables
+
+Next, lets try to find interesting relationships between some of the independant variables. Some of the relationships-of-interest might include alcohol vs density, residual.sugar vs alcohol, citric.acid vs volatile.acidity, citric.acid vs residual.sugar.
+
+####Alcohol vs density
+
+```{r echo=FALSE}
+ggplot(aes(x = density, y = alcohol), data = wines_subset) +
+  geom_point()
+```
+
+There seems to be some negative correlation between alcohol and density. As the density-level rises, the amount of alcohol reduces.
+
+Lets see if any patterns emerge if we color the plot by quality.
+
+```{r echo=FALSE}
+ggplot(aes(x = density, y = alcohol, color = quality_factor),
+    data = wines_subset) +
+  geom_point()
+```
+
+There seems to be a slight pattern that high quality wines have both high amount of alcohol and low density. This complies with the discoveries when looking at the boxplots and correlations of alcohol vs quality and density vs quality.
+
+####Redidual sugar vs alcohol
+
+```{r echo=FALSE}
+ggplot(aes(x = residual.sugar, y = alcohol), data = wines_subset) +
+  geom_point()
+```
+
+It is difficult to see any patterns here, so lets add some alpha to the plot:
+```{r echo=FALSE}
+ggplot(aes(x = residual.sugar, y = alcohol), data = wines_subset) +
+  geom_point(alpha=1/10)
+```
+
+It is difficult to find any relationships in this chart. Most of the values seem to be on the left side of the chart, which is caused by the fact that a significant amount of wines had a low sugar amount (as seen in the long-tailed pattern of the residual.sugar histogram). Additionally, it seems that sweeter wines have a lower alcohol amount, which is curious.
+
+Lets see if any patterns emerge when coloring the scatterplot with quality
+```{r echo=FALSE}
+ggplot(aes(x = residual.sugar, y = alcohol, color = quality_factor),
+    data = wines_subset) +
+  geom_point()
+```
+
+When looking at the plot, there seems to be a slight pattern of qualities being higher at the high alcohol-low sugar end of the plot. This, however, might not indicate a meaningful relationship here, instead the combination of positive correlation of alcohol vs quality and the dataset having mostly low-sugar wines could provide an explanation to this phenomenon.
+
+####Citric acid vs volatile acidity
+
+```{r echo=FALSE}
+ggplot(aes(x = citric.acid, y = volatile.acidity), data = wines_subset) +
+  geom_point()
+```
+
+According to the plot, there doesn't really seem to be any meaningful relationships between the variables.
+
+Lets see if anything interesting comes up when coloring the plot with quality:
+```{r}
+ggplot(aes(x = citric.acid, y = volatile.acidity, color = quality_factor),
+    data = wines_subset) +
+  geom_point()
+```
+
+Now this might be interesting. In the middle of the cluster, there seems to be a high concentration of higher quality wines. Could there be a relationship here?
+
+Lets see if there is a correlation between the ration of citric.acidity and volatile.acidity vs quality
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+```{r echo=FALSE}
+cor.test(as.numeric(wines_subset$quality), wines_subset$citric_volatile_acidity, method = 'spearman')
+```
+
+####Citric acid vs residual sugar
+```{r echo=FALSE}
+ggplot(aes(x = citric.acid, y = residual.sugar), data = wines_subset) +
+  geom_point()
+```
+
+This plot is also difficult to follow as the residual sugar values are so heavily skewed towards the low amounts of sugar.
+No clear patterns emerge from the plot, except perhaps the fact that it seems that low citric.acid is only given to wines with low amounts of sugar. But that may also be due to the fact that the vast majority of wines are low in sugar.
+
+
 
 plot5 <- ggplot(aes(x = quality, y = density),
                 data = subset(wines, wines$quality != 9)) +
