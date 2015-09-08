@@ -456,9 +456,9 @@ ggplot(aes(x = quality_factor, y = (alcohol/density)),
   geom_boxplot()
 ```
 
-The pattern looks very similar to that of alcohol. This is due to the fact that density has very little variation between different qualities when compared to alcohol. Therefore almost all the correlation with alcohol/density and quality are caused by alcohol.
+The pattern looks very similar to that of alcohol. This is due to the fact that density has very little variation between different qualities when compared to alcohol.
 
-###Redidual sugar vs alcohol
+###Residual sugar vs alcohol
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(aes(x = residual.sugar, y = alcohol), data = wines_subset) +
   geom_point()
