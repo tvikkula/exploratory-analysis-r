@@ -722,11 +722,8 @@ In the plot, the bars are colored by the correlation direction, and the plot is 
 In this research I explored what chemical qualities could affect the quality of white wine.
 
 First, the features were plotted as histograms to detect outliers and to discover some interesting patterns in their distributions.
-
 Then, all of the features correlations with quality were investigated using ggpairs. After that, a subset of the most promising independant variables were chosen to examine more closely.
-
 The chosen independant variables were plotted and tested for correlation with quality. Some of the independant variables were plotted with each other to discover interesting patterns and to perhaps create additional features from the ratios of these independant variables.
-
 Finally, a linear model is built to see how well the chemical properties could explain wine quality using a simple model. Turns out, not too well.
 
 The features provided seem ill suited to explain wine quality. This is understandable, however, as human opinions and decision (such as how they rate wine) are notoriously difficult to explain with a handful of variables. The relationships of the variables were very nonlinear and non-modal causing us to believe that different chemical properties will fit different wine in ways that are difficult to estimate, at least using just the features given in this dataset.
