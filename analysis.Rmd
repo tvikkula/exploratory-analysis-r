@@ -12,12 +12,12 @@ library(GGally)
 library(scales)
 library(memisc)
 library(gridExtra)
+
 library(dplyr)
 ```
 
 Lets load the dataset and look at its structure and variables
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
-setwd('~/Dev/python/datascience/exploratoryR/project/')
 wines <- read.csv('wineQualityWhites.csv', sep=',')
 summary(wines)
 str(wines)
@@ -304,7 +304,8 @@ In the zoomed boxplot the correlations seem to indicate the same conclusions as 
 Due to the correlation looking obviously nonlinear and non-modal, the correlation tests will likely provide an incorrect metric on the correlation of the variables.
 
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
-cor.test(as.numeric(wines_subset$quality), wines_subset$fixed.acidity, method = 'spearman')
+cor.test(as.numeric(wines_subset$quality), wines_subset$fixed.acidity,
+         method = 'spearman')
 ```
 
 The correlation looks very low but it might be higher in actuality due to the non-modal nature of the relationship.
@@ -328,7 +329,8 @@ In the zoomed plot, the volatile acidity seems to drop at first between qualitie
 
 Lets run a Spearman correlation test to quantify this correlation. Spearman is used as the correlation seems to be nonlinear.
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
-cor.test(as.numeric(wines_subset$quality), wines_subset$volatile.acidity, method = 'spearman')
+cor.test(as.numeric(wines_subset$quality), wines_subset$volatile.acidity,
+         method = 'spearman')
 ```
 
 The variables seem to have slight negative correlation as the boxplots suggest.
@@ -348,7 +350,8 @@ Besides the non-modal correlation pattern, there seems to be significant variati
 
 Lets do the correlation test anyway (using Spearman again):
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
-cor.test(as.numeric(wines_subset$quality), wines_subset$residual.sugar, method = 'spearman')
+cor.test(as.numeric(wines_subset$quality), wines_subset$residual.sugar,
+        method = 'spearman')
 ```
 
 The correlation value seems really low, which I feel does not tell the whole story on the relationship between residual.sugar and quality.
@@ -465,6 +468,7 @@ ggplot(aes(x = residual.sugar, y = alcohol), data = wines_subset) +
 ```
 
 It is difficult to see any patterns here, so lets add some alpha to the plot:
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(aes(x = residual.sugar, y = alcohol), data = wines_subset) +
   geom_point(alpha=1/10)
@@ -473,6 +477,7 @@ ggplot(aes(x = residual.sugar, y = alcohol), data = wines_subset) +
 It is difficult to find any relationships in this chart. Most of the values seem to be on the left side of the chart, which is caused by the fact that a significant amount of wines had a low sugar amount (as seen in the long-tailed pattern of the residual.sugar histogram). Additionally, it seems that sweeter wines have a lower alcohol amount, which is curious.
 
 Lets see if any patterns emerge when coloring the scatterplot with quality
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(aes(x = residual.sugar, y = alcohol, color = quality_factor),
     data = wines_subset) +
@@ -482,6 +487,7 @@ ggplot(aes(x = residual.sugar, y = alcohol, color = quality_factor),
 When looking at the plot, there seems to be a slight pattern of qualities being higher at the high alcohol-low sugar end of the plot. This, however, might not indicate a meaningful relationship here, instead the combination of positive correlation of alcohol vs quality and the dataset having mostly low-sugar wines could provide an explanation to this phenomenon.
 
 Lets look at the ratio of sugar and alcohol vs quality in a boxplot
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(aes(x = quality_factor, y = (alcohol/residual.sugar)),
     data = wines_subset) +
@@ -491,6 +497,7 @@ ggplot(aes(x = quality_factor, y = (alcohol/residual.sugar)),
 There does seem to be some variance between the ratio-values at different qualities. The relationship is clearly nonlinear and also non-monotonic.
 
 Lets test the correlation using Spearman
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 cor.test(as.numeric(wines_subset$quality), (wines_subset$alcohol / wines_subset$residual.sugar), method = 'spearman')
 ```
@@ -506,6 +513,7 @@ ggplot(aes(x = citric.acid, y = volatile.acidity), data = wines_subset) +
 According to the plot, there doesn't really seem to be any meaningful relationships between the variables.
 
 Lets see if anything interesting comes up when coloring the plot with quality:
+
 ```{r}
 ggplot(aes(x = citric.acid, y = volatile.acidity, color = quality_factor),
     data = wines_subset) +
@@ -515,6 +523,7 @@ ggplot(aes(x = citric.acid, y = volatile.acidity, color = quality_factor),
 Now this might be interesting. In the middle of the cluster, there seems to be a high concentration of higher quality wines. Could there be a relationship here?
 
 Lets see if there is a correlation between the ratio of citric.acidity and volatile.acidity vs quality
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(aes(x = quality_factor, y = (citric.acid/volatile.acidity)),
     data = wines_subset) +
@@ -524,6 +533,7 @@ ggplot(aes(x = quality_factor, y = (citric.acid/volatile.acidity)),
 There seems to be slight positive correlation seen in the boxplot.
 
 Lets do a Spearman test:
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 cor.test(as.numeric(wines_subset$quality), (wines_subset$citric.acid / wines_subset$volatile.acidity), method = 'spearman')
 ```
@@ -550,6 +560,7 @@ ggplot(aes(x = citric.acid, y = residual.sugar, color = quality_factor),
 The doesn't seem to be any visible patterns in the scatterplot.
 
 Lets see if there is a correlation between the ratio of citric.acidity and volatile.acidity vs quality
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(aes(x = quality_factor, y = (citric.acid/residual.sugar)),
     data = wines_subset) +
@@ -557,6 +568,7 @@ ggplot(aes(x = quality_factor, y = (citric.acid/residual.sugar)),
 ```
 
 The patterns here seem very small. Lets zoom the plot a bit to see more.
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(aes(x = quality_factor, y = (citric.acid/residual.sugar)),
     data = wines_subset) +
@@ -567,6 +579,7 @@ ggplot(aes(x = quality_factor, y = (citric.acid/residual.sugar)),
 The correlation is tiny, but it seems to be there. The correlation looks nonlinear and non-monotonic, forming a kind of a wave-pattern in its relationship with quality.
 
 Lets do a Spearman test:
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 cor.test(as.numeric(wines_subset$quality), (wines_subset$citric.acid / wines_subset$residual.sugar), method = 'spearman')
 ```
@@ -577,6 +590,7 @@ The seems to be some small positive correlation in the relationship of the ratio
 ##Running a linear model to predict quality
 
 Lets see what the correlation values for fixed.acidity, volatile.acidity, residual.sugar, total.sulfur.dioxide, citric.acid, density and alcohol were:
+
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 wines.correlations <- data.frame(
   name = c("fixed.acidity", "volatile.acidity",
@@ -619,12 +633,14 @@ wines.correlations <- arrange(wines.correlations, desc(rho))
 
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(aes(y = abs(rho), x = name), data = wines.correlations) +
-  geom_bar(stat = "identity", color = "black", fill = "purple")
+  geom_bar(stat = "identity", color = "black", fill = "purple") +
+  theme(axis.text.x = element_text(angle=45))
 ```
 
 Note that the chart uses absolute values as we don't really care about the direction of the correlation - only the size of it. Alcohol and alcohol/density look very similar in size - this is explained by the fact that they really are the same thing, as explained earlier.
 
 Lets try to build a linear model for wine quality using independent variables with the largest perceived correlation.
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 m1 <- lm(I(quality) ~ I(alcohol), data = wines_subset)
 m2 <- update(m1, ~ . + (alcohol/density))
@@ -637,6 +653,7 @@ mtable(m1,m2,m3,m4,m5)
 It seems that the alcohol/density, density, and citric.acid affected the model very little.
 
 Lets add the rest of the features:
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 m6 <- update(m5, ~ . + (alcohol/residual.sugar))
 m7 <- update(m6, ~ . + (citric.acid/volatile.acidity))
@@ -653,6 +670,7 @@ Most of the features affect the model very little. The ratio-features offer litt
 Overall, the proposed model explains 27.7% of the variation in quality, which is quite poor. 
 
 Lets see what went wrong:
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 summary(m12)
 anova(m12)
@@ -661,6 +679,7 @@ anova(m12)
 The p-value (Pr(>t)) seems quite high for citric.acid, citric.acid/volatile.acidity, and citric.acid/residual.sugar, causing me to believe that they did not have a significant effect on wine quality. These were the features using values of citric.acid causing me to definately believe that citric.acid did not have an effect on quality.
 
 Lets remove citric.acid-features and create the final linear model:
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 m1 <- lm(I(quality) ~ I(alcohol), data = wines_subset)
 m2 <- update(m1, ~ . + density)
@@ -679,6 +698,7 @@ summary(m9)
 In this research I explored what chemical qualities could affect the quality of white wine. 
 
 It seemed that the most significant factor that affected white wine quality in this dataset was quite surprisingly alcohol. Here is a boxplot summarizing the relationship of the amount of alcohol and quality.
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(aes(x = quality_factor, y = alcohol),
        data = wines_subset) +
@@ -688,8 +708,18 @@ ggplot(aes(x = quality_factor, y = alcohol),
   xlab('Wine Quality') +
   ggtitle('Alcohol of Wine vs Quality')
 ```
+The relationship was nonlinear and non-modal but still quite significant.
 
-When exploring multivariate relationships, a curious relationship was found between citric.acid, volatile.acid and quality.
+Here is a Spearman test to quantify the correlation:
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+cor.test(as.numeric(wines_subset$quality), wines_subset$alcohol, method = 'spearman')
+```
+
+The correlation is somewhat high despite the non-modal nature of the relationship, which is highly likely to distort the result of the Spearman test.
+
+There were other significant relationships as well. When exploring multivariate relationships, a curious relationship was found between citric.acid, volatile.acid and quality.
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(aes(x = citric.acid, y = volatile.acidity, color = quality_factor),
     data = wines_subset) +
@@ -700,22 +730,55 @@ ggplot(aes(x = citric.acid, y = volatile.acidity, color = quality_factor),
   guides(color=guide_legend(title="Wine Quality"))
 ```
 
-In this plot, the good quality wines seemed to cluster around a certain area. But even so, regression analysis showed with high confidence that citric.acid does not affect wine quality.
+In this plot, the good quality wines seemed to cluster around a certain area. This might indicate that white wine quality does correlate with the ratio of citric.acid and volatile.acidity.
 
-Finally, the correlations of each explored feature is displayed in this barplot:
+The ratio of these two variables does seem to indicate some positive correlation with wine quality when tested using a Spearman test:
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+cor.test(as.numeric(wines_subset$quality), (wines_subset$citric.acid / wines_subset$volatile.acidity), method = 'spearman')
+```
+
+Unfortunately, later on when a linear model was fitted to predict wine quality, it was discovered that the ratio of citric.acid and volatile.acidity was very likely to not have an effect on wine quality.
+
+Finally, the Spearman correlations of each explored feature is displayed in this barplot. This indicates that there were other relationships of interest than ones with alcohol or the interesting one with citric.acid/volatile.acidity:
+
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 # Add direction (positive, negative) to wines.correlations:
-wines.correlations$direction <- ifelse(wines.correlations$rho > 0, "positive", "negative")
+wines.correlations$direction <-
+  ifelse(wines.correlations$rho > 0, "positive", "negative")
 ggplot(aes(y = abs(rho), x = reorder(name, -abs(rho)),
            fill = direction), data = wines.correlations) +
   geom_bar(stat = "identity", color = "black") +
   ylab("Rho-values") +
   xlab("Independent variables") +
   ggtitle("Rho-values of Spearman's correlation tests") +
-  guides(fill=guide_legend(title="Correlation direction"))
+  guides(fill=guide_legend(title="Correlation direction")) +
+  theme(axis.text.x = element_text(angle=45))
 ```
 
-In the plot, the bars are colored by the correlation direction, and the plot is sorted by the correlation size. It is evident in the plot that alcohol seems to be the most important factor in wine quality.
+Here are the correlations in numeric form:
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+wines.correlations[,0:2]
+```
+
+Spearman correlation was used because every relationship explored was nonlinear. In the plot, the bars are colored by the correlation direction, and the plot is sorted by the correlation size. As mentioned earlier, it is evident in the plot that alcohol seems to be the most important factor in wine quality. Other significant relationships include the ratio of alcohol/density, density, volatile acidity, and alcohol/residual.sugar. Quite interestingly, citric.acid seemed to have a slight correlation with wine quality, but similar to citric.acid/volatile.acidity, was deemed with high confidence not to have an effect on white wine quality.
+
+The final linear model of wine quality was created as follows. From the variables listed before, all features concerning citric.acid was omitted from the model as it did not (with high confidence) seem to have an effect in the model .
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+m1 <- lm(I(quality) ~ I(alcohol), data = wines_subset)
+m2 <- update(m1, ~ . + density)
+m3 <- update(m2, ~ . + volatile.acidity)
+m4 <- update(m3, ~ . + (alcohol/residual.sugar))
+m5 <- update(m4, ~ . + total.sulfur.dioxide)
+m6 <- update(m5, ~ . + fixed.acidity)
+m7 <- update(m6, ~ . + residual.sugar)
+m8 <- update(m7, ~ . + sulphates)
+m9 <- update(m8, ~ . + (alcohol/density))
+summary(m9)
+```
+
+Sadly, the linear model can not explain wine quality that well as it can only explain 27.66% of the variance in wine quality.
 
 #Reflection
 
